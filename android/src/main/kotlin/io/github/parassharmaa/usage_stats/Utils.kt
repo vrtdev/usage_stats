@@ -4,6 +4,7 @@ import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Process
 import android.provider.Settings
 import android.util.Log
@@ -12,14 +13,18 @@ import android.util.Log
 object Utils {
 
     fun isUsagePermission(context: Context): Boolean {
-        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager?
-        val mode = appOps!!.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
-        if (mode == AppOpsManager.MODE_ALLOWED) {
-            Log.d("UTILS", "Usage permission is granted")
-            return true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager?
+            val mode = appOps!!.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS, Process.myUid(), context.packageName)
+            if (mode == AppOpsManager.MODE_ALLOWED) {
+                Log.d("UTILS", "Usage permission is granted")
+                return true
+            }
+            Log.d("UTILS", "Usage permission is not granted")
+            return false
+        } else {
+            return false;
         }
-        Log.d("UTILS", "Usage permission is not granted")
-        return false
     }
 
     fun grantUsagePermission(context: Context) {
